@@ -3,3 +3,6 @@ serve:
 
 test:
 	npm test
+
+storybook:
+	npm run storybook
