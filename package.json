@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "isomorphic-fetch": "^2.2.1",
+    "marked": "^0.5.1",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-scripts": "1.1.5"
@@ -16,11 +18,14 @@
     "build-storybook": "build-storybook -s public"
   },
   "devDependencies": {
-    "@storybook/react": "^3.4.10",
     "@storybook/addon-actions": "^3.4.10",
     "@storybook/addon-links": "^3.4.10",
     "@storybook/addons": "^3.4.10",
+    "@storybook/react": "^3.4.10",
     "babel-core": "^6.26.3",
-    "babel-runtime": "^6.26.0"
+    "babel-runtime": "^6.26.0",
+    "bdd-lazy-var": "^2.5.0",
+    "faker": "^4.1.0",
+    "nock": "^10.0.1"
   }
 }
