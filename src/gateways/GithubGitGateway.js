@@ -1,9 +1,5 @@
 import fetch from 'isomorphic-fetch'
 
-// import GitGateway, { Ref, Commit, Blob, BlobEncoding, TreeInput, Tree } from '../interfaces/GitGateway'
-// import GitGateway from '../interfaces/GitGateway'
-
-// export default class GithubGitGateway implements GitGateway {
 export default class GithubGitGateway {
   constructor ({ user, repo, accessToken }) {
     this.repoBaseUrl = `https://api.github.com/repos/${user}/${repo}/git`
@@ -46,26 +42,6 @@ export default class GithubGitGateway {
       sha: json.sha
     }
   }
-
-  // getSingleTree () {
-    // http GET https://api.github.com/repos/zuren/notes/git/trees/f81dbe00fa91182a2dfb28129f81a7cae55c2aec 'Authorization: token 6ea3bb79e45669758908417df3eaba7d0bc95119'
-
-    // {
-    //     "sha": "f81dbe00fa91182a2dfb28129f81a7cae55c2aec",
-    //     "tree": [
-    //         {
-    //             "mode": "100644",
-    //             "path": "test.md",
-    //             "sha": "b2201cdaf61ed7ba2016ceca49a7abef51093d01",
-    //             "size": 28,
-    //             "type": "blob",
-    //             "url": "https://api.github.com/repos/zuren/notes/git/blobs/b2201cdaf61ed7ba2016ceca49a7abef51093d01"
-    //         }
-    //     ],
-    //     "truncated": false,
-    //     "url": "https://api.github.com/repos/zuren/notes/git/trees/f81dbe00fa91182a2dfb28129f81a7cae55c2aec"
-    // }
-  // }
 
   async createTree ({ baseSha, tree }) {
     const body = {
