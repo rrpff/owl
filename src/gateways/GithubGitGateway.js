@@ -28,6 +28,29 @@ export default class GithubGitGateway {
     }
   }
 
+  async getSingleTree (sha) {
+    const response = await fetch(`${this.repoBaseUrl}/trees/${sha}`, { headers: this.repoBaseHeaders })
+    const json = await response.json()
+
+    return {
+      sha: json.sha,
+      tree: json.tree.map(node => ({
+        path: node.path,
+        sha: node.sha
+      }))
+    }
+  }
+
+  async getBlob (sha) {
+    const response = await fetch(`${this.repoBaseUrl}/blobs/${sha}`, { headers: this.repoBaseHeaders })
+    const json = await response.json()
+
+    return {
+      sha: json.sha,
+      content: Buffer.from(json.content, 'base64').toString('ascii')
+    }
+  }
+
   async createBlob ({ content, encoding }) {
     const body = { content, encoding }
     const response = await fetch(`${this.repoBaseUrl}/blobs`, {

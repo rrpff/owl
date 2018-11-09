@@ -3,7 +3,7 @@ import faker from 'faker'
 import nock from 'nock'
 import GithubGitGateway from './GithubGitGateway'
 
-const GITHUB_DOUBLE = nock('https://api.github.com', { reqheaders: { 'Authorization': 'token 123456' } })
+const GITHUB_API_DOUBLE = nock('https://api.github.com', { reqheaders: { 'Authorization': 'token 123456' } })
 
 def('user', () => 'some-user')
 def('repo', () => 'some-notes-repo')
@@ -23,6 +23,58 @@ describe('getSingleRef', () => {
 
     it('should return the sha for the given ref', async () => {
       expect(await $subject).toEqual({ ref: 'heads/master', sha: $expectedSha })
+    })
+  })
+})
+
+describe('getSingleTree', () => {
+  subject(() => $gateway.getSingleTree($sha))
+  beforeEach(() => stubTreesEndpoint({
+    expectedUser: $user,
+    expectedRepo: $repo,
+    expectedSha: $sha,
+    responseTree: [{
+      path: $blobFilename,
+      sha: $blobSha
+    }]
+  }))
+
+  describe('when given a sha', async () => {
+    def('sha', faker.random.uuid)
+    def('blobFilename', faker.system.fileName)
+    def('blobSha', faker.random.uuid)
+
+    it('should return the correct sha and tree', async () => {
+      expect(await $subject).toEqual({
+        sha: $sha,
+        tree: [{
+          path: $blobFilename,
+          sha: $blobSha
+        }]
+      })
+    })
+  })
+})
+
+describe('getBlob', () => {
+  subject(() => $gateway.getBlob($sha))
+  beforeEach(() => stubBlobEndpoint({
+    expectedUser: $user,
+    expectedRepo: $repo,
+    expectedSha: $sha,
+    responseContent: $responseContent
+  }))
+
+  describe('when given a sha', async () => {
+    def('sha', faker.random.uuid)
+    def('testSentence', faker.lorem.sentence)
+    def('responseContent', () => Buffer.from($testSentence).toString('base64'))
+
+    it('should return the correct content and sha', async () => {
+      expect(await $subject).toEqual({
+        sha: $sha,
+        content: $testSentence
+      })
     })
   })
 })
@@ -137,19 +189,43 @@ describe('updateReference', () => {
 })
 
 const stubRefsEndpoint = ({ expectedUser, expectedRepo, expectedRef, expectedSha }) =>
-  GITHUB_DOUBLE.get(`/repos/${expectedUser}/${expectedRepo}/git/refs/${expectedRef}`).reply(200, {
-    node_id: "something==",
+  GITHUB_API_DOUBLE.get(`/repos/${expectedUser}/${expectedRepo}/git/refs/${expectedRef}`).reply(200, {
+    node_id: 'something==',
     object: {
       sha: expectedSha,
-      type: "commit",
+      type: 'commit',
       url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/commits/${expectedSha}`
     },
     ref: `refs/${expectedRef}`,
     url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/refs/${expectedRef}`
   })
 
+const stubTreesEndpoint = ({ expectedUser, expectedRepo, expectedSha, responseTree }) =>
+  GITHUB_API_DOUBLE.get(`/repos/${expectedUser}/${expectedRepo}/git/trees/${expectedSha}`).reply(200, {
+    sha: expectedSha,
+    tree: responseTree.map(blob => ({
+      mode: '100644',
+      path: blob.path,
+      sha: blob.sha,
+      size: 28,
+      type: 'blob',
+      url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/blobs/${blob.sha}`
+    })),
+    truncated: false,
+    url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/trees/${expectedSha}`
+  })
+
+const stubBlobEndpoint = ({ expectedUser, expectedRepo, expectedSha, responseContent }) =>
+  GITHUB_API_DOUBLE.get(`/repos/${expectedUser}/${expectedRepo}/git/blobs/${expectedSha}`).reply(200, {
+    content: responseContent,
+    encoding: 'base64',
+    url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/blobs/${expectedSha}`,
+    sha: expectedSha,
+    size: 19
+  })
+
 const stubCommitEndpoint = ({ expectedUser, expectedRepo, expectedSha, expectedTreeSha }) =>
-  GITHUB_DOUBLE.get(`/repos/${expectedUser}/${expectedRepo}/git/commits/${expectedSha}`).reply(200, {
+  GITHUB_API_DOUBLE.get(`/repos/${expectedUser}/${expectedRepo}/git/commits/${expectedSha}`).reply(200, {
     author: {
       date: '2018-10-19T12:50:50Z',
       email: 'test@example.com',
@@ -179,13 +255,13 @@ const stubCommitEndpoint = ({ expectedUser, expectedRepo, expectedSha, expectedT
   })
 
 const stubCreateBlobEndpoint = ({ expectedUser, expectedRepo, expectedContent, expectedEncoding, responseSha }) =>
-  GITHUB_DOUBLE.post(`/repos/${expectedUser}/${expectedRepo}/git/blobs`, { content: expectedContent, encoding: expectedEncoding }).reply(200, {
+  GITHUB_API_DOUBLE.post(`/repos/${expectedUser}/${expectedRepo}/git/blobs`, { content: expectedContent, encoding: expectedEncoding }).reply(200, {
     sha: responseSha,
     url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/blobs/${responseSha}`
   })
 
 const stubCreateTreeEndpoint = ({ expectedUser, expectedRepo, expectedBaseSha, expectedTree, responseSha }) =>
-  GITHUB_DOUBLE.post(`/repos/${expectedUser}/${expectedRepo}/git/trees`, { base_tree: expectedBaseSha, tree: expectedTree }).reply(200, {
+  GITHUB_API_DOUBLE.post(`/repos/${expectedUser}/${expectedRepo}/git/trees`, { base_tree: expectedBaseSha, tree: expectedTree }).reply(200, {
     sha: responseSha,
     tree: expectedTree.map(node => ({
       mode: node.mode,
@@ -198,7 +274,7 @@ const stubCreateTreeEndpoint = ({ expectedUser, expectedRepo, expectedBaseSha, e
   })
 
 const stubCreateCommitEndpoint = ({ expectedUser, expectedRepo, expectedMessage, expectedTreeSha, expectedParentShas, responseSha }) =>
-  GITHUB_DOUBLE.post(`/repos/${expectedUser}/${expectedRepo}/git/commits`, { message: expectedMessage, tree: expectedTreeSha, parents: expectedParentShas }).reply(200, {
+  GITHUB_API_DOUBLE.post(`/repos/${expectedUser}/${expectedRepo}/git/commits`, { message: expectedMessage, tree: expectedTreeSha, parents: expectedParentShas }).reply(200, {
     author: {
       date: '2018-10-19T13:27:37Z',
       email: 'test@example.com',
@@ -232,13 +308,13 @@ const stubCreateCommitEndpoint = ({ expectedUser, expectedRepo, expectedMessage,
   })
 
 const stubUpdateReferenceEndpoint = ({ expectedUser, expectedRepo, expectedSha, expectedRef }) =>
-  GITHUB_DOUBLE.patch(`/repos/${expectedUser}/${expectedRepo}/git/refs/${expectedRef}`, { sha: expectedSha }).reply(200, {
+  GITHUB_API_DOUBLE.patch(`/repos/${expectedUser}/${expectedRepo}/git/refs/${expectedRef}`, { sha: expectedSha }).reply(200, {
     node_id: 'ABC6UmVmMTUzNzgxNzg5Om1hc3Rlcg==',
     object: {
         sha: expectedSha,
         type: 'commit',
-        url: `https://api.github.com/repos/zuren/notes/git/commits/${expectedSha}`
+        url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/commits/${expectedSha}`
     },
     ref: `refs/${expectedRef}`,
-    url: `https://api.github.com/repos/zuren/notes/git/refs/${expectedRef}`
+    url: `https://api.github.com/repos/${expectedUser}/${expectedRepo}/git/refs/${expectedRef}`
   })
