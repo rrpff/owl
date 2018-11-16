@@ -1,21 +1,25 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import FileStateContext from './contexts/FileStateContext'
+import GithubGitGateway from './gateways/GithubGitGateway'
+import ReadFiles from './services/ReadFiles'
+import CommitFiles from './services/CommitFiles'
+import Widget from './components/Widget'
+// import './App.css'
 
-class App extends Component {
+const gitGateway = new GithubGitGateway({ user: 'zuren', repo: 'notes', accessToken: '6ea3bb79e45669758908417df3eaba7d0bc95119' })
+const readFiles = new ReadFiles({ gitGateway })
+const commitFiles = new CommitFiles({ gitGateway })
+
+class App extends React.Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload???
-        </p>
-      </div>
-    );
+      <Widget
+        ref="heads/master"
+        readFiles={readFiles}
+        commitFiles={commitFiles}
+      />
+    )
   }
 }
 
-export default App;
+export default App
