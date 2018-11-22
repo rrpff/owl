@@ -1,25 +1,20 @@
 import React from 'react'
-import FileStateContext from './contexts/FileStateContext'
-import GithubGitGateway from './gateways/GithubGitGateway'
-import ReadFiles from './services/ReadFiles'
-import CommitFiles from './services/CommitFiles'
-import Widget from './components/Widget'
-// import './App.css'
+import MessagesPage from './components/MessagesPage'
+import PostMessage from './services/PostMessage'
+import ReadMessages from './services/ReadMessages'
+import LocalMessageGateway from './gateways/LocalMessageGateway'
 
-const gitGateway = new GithubGitGateway({ user: 'zuren', repo: 'notes', accessToken: '6ea3bb79e45669758908417df3eaba7d0bc95119' })
-const readFiles = new ReadFiles({ gitGateway })
-const commitFiles = new CommitFiles({ gitGateway })
+const messageGateway = new LocalMessageGateway()
+const postMessage = new PostMessage({ messageGateway })
+const readMessages = new ReadMessages({ messageGateway })
 
-class App extends React.Component {
+export default class App extends React.Component {
   render() {
     return (
-      <Widget
-        ref="heads/master"
-        readFiles={readFiles}
-        commitFiles={commitFiles}
+      <MessagesPage
+        postMessage={postMessage}
+        readMessages={readMessages}
       />
     )
   }
 }
-
-export default App

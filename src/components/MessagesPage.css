@@ -1,0 +1,25 @@
+.wrapper {
+  padding: 20px 0;
+  margin: auto;
+  width: 50%;
+}
+
+.message-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.message-list__message {
+  padding-bottom: 10px;
+}
+
+.message-list__message:last-of-type {
+  padding-bottom: 0;
+}
+
+.message-list__message__time {
+  color: grey;
+  padding-left: 12px;
+  font-size: 75%;
+}

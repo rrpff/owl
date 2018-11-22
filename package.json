@@ -3,14 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
     "isomorphic-fetch": "^2.2.1",
     "marked": "^0.5.1",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
-    "react-scripts": "1.1.5"
+    "react-scripts": "1.1.5",
+    "react-timeago": "^4.1.9"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node server.js & react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
@@ -25,6 +29,8 @@
     "babel-core": "^6.26.3",
     "babel-runtime": "^6.26.0",
     "bdd-lazy-var": "^2.5.0",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.7.0",
     "faker": "^4.1.0",
     "nock": "^10.0.1"
   }
