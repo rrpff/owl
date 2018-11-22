@@ -35,29 +35,31 @@ export default class MessagesPage extends React.Component {
 
   render () {
     return (
-      <section className="wrapper">
-        <h1>Cool anonymous message board</h1>
+      <main className="page">
+        <section className="wrapper">
+          <h1>Cool anonymous message board</h1>
 
-        <h3>Write your own cool anonymous message</h3>
-        <form purpose="Submit Message Form" onSubmit={this.submitMessage}>
-          <input purpose="Message Input" type="text" value={this.state.currentMessage} onChange={this.setText} />
-          <button>Submit</button>
-        </form>
+          <h3>Write your own cool anonymous message</h3>
+          <form purpose="Submit Message Form" onSubmit={this.submitMessage}>
+            <input purpose="Message Input" type="text" value={this.state.currentMessage} onChange={this.setText} />
+            <button>Submit</button>
+          </form>
 
-        <h3>What cool anonymouses have written so far</h3>
-        <ul className="message-list">
-          {this.state.messages.map(message =>
-            <li purpose="Message List Item" key={message.timestamp} className="message-list__message">
-              <span className="message-list__message__content">
-                {message.message}
-              </span>
-              <span className="message-list__message__time">
-                <TimeAgo date={message.timestamp} />
-              </span>
-            </li>
-          )}
-        </ul>
-      </section>
+          <h3>What cool anonymouses have written so far</h3>
+          <ul className="message-list">
+            {this.state.messages.map(message =>
+              <li purpose="Message List Item" key={message.timestamp} className="message-list__message">
+                <span className="message-list__message__content">
+                  {message.message}
+                </span>
+                <span className="message-list__message__time">
+                  <TimeAgo date={message.timestamp} />
+                </span>
+              </li>
+            )}
+          </ul>
+        </section>
+      </main>
     )
   }
 }
