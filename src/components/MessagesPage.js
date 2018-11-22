@@ -47,7 +47,7 @@ export default class MessagesPage extends React.Component {
         <h3>What cool anonymouses have written so far</h3>
         <ul className="message-list">
           {this.state.messages.map(message =>
-            <li purpose="Message List Item" key={message.timestamp} class="message-list__message">
+            <li purpose="Message List Item" key={message.timestamp} className="message-list__message">
               <span className="message-list__message__content">
                 {message.message}
               </span>
